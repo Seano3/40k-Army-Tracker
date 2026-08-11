@@ -1,26 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { Army } from "@/lib/types";
-import { createArmy, deleteArmy, getArmies, renameArmy } from "@/lib/db";
+import type { Army, Faction } from "@/lib/types";
+import { createArmy, deleteArmy, getArmies, getFactions, renameArmy } from "@/lib/db";
 import { ArmyTabs } from "./ArmyTabs";
 import { Board } from "./Board";
 
 export function ArmyTrackerApp() {
   const [armies, setArmies] = useState<Army[]>([]);
+  const [factions, setFactions] = useState<Faction[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getArmies().then((data) => {
-      setArmies(data);
-      setSelectedId((current) => current ?? data[0]?.id ?? null);
+    Promise.all([getArmies(), getFactions()]).then(([armiesData, factionsData]) => {
+      setArmies(armiesData);
+      setFactions(factionsData);
+      setSelectedId((current) => current ?? armiesData[0]?.id ?? null);
       setLoading(false);
     });
   }, []);
 
-  async function handleCreate(name: string) {
-    const army = await createArmy(name);
+  async function handleCreate(name: string, factionId: string) {
+    const army = await createArmy(name, factionId);
     setArmies((prev) => [...prev, army]);
     setSelectedId(army.id);
   }
@@ -44,6 +46,8 @@ export function ArmyTrackerApp() {
     return <p className="p-6 text-sm text-zinc-500">Loading...</p>;
   }
 
+  const selectedArmy = armies.find((a) => a.id === selectedId) ?? null;
+
   return (
     <div className="flex flex-1 flex-col">
       <header className="px-4 pt-4">
@@ -51,14 +55,15 @@ export function ArmyTrackerApp() {
       </header>
       <ArmyTabs
         armies={armies}
+        factions={factions}
         selectedId={selectedId}
         onSelect={setSelectedId}
         onCreate={handleCreate}
         onRename={handleRename}
         onDelete={handleDelete}
       />
-      {selectedId ? (
-        <Board key={selectedId} armyId={selectedId} />
+      {selectedArmy ? (
+        <Board key={selectedArmy.id} armyId={selectedArmy.id} factionId={selectedArmy.faction_id} />
       ) : (
         <p className="p-6 text-sm text-zinc-500">
           Create an army to start tracking units.

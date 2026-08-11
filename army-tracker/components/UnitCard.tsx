@@ -93,6 +93,11 @@ export function UnitCard({ unit, onSave, onDelete }: Props) {
     >
       <div className="flex items-start justify-between gap-2">
         <p className="text-sm font-medium">{unit.name}</p>
+        {unit.points != null && (
+          <span className="shrink-0 rounded bg-black/[.06] px-1.5 py-0.5 text-[0.7rem] font-medium text-zinc-600 dark:bg-white/[.08] dark:text-zinc-300">
+            {unit.points} pts
+          </span>
+        )}
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {

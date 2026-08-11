@@ -1,19 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import type { Army } from "@/lib/types";
+import type { Army, Faction } from "@/lib/types";
 
 type Props = {
   armies: Army[];
+  factions: Faction[];
   selectedId: string | null;
   onSelect: (id: string) => void;
-  onCreate: (name: string) => void;
+  onCreate: (name: string, factionId: string) => void;
   onRename: (id: string, name: string) => void;
   onDelete: (id: string) => void;
 };
 
 export function ArmyTabs({
   armies,
+  factions,
   selectedId,
   onSelect,
   onCreate,
@@ -22,12 +24,14 @@ export function ArmyTabs({
 }: Props) {
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState("");
+  const [newFactionId, setNewFactionId] = useState(() => factions[0]?.id ?? "");
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
 
-  function submitAdd() {
+  function submitAdd(e: React.FormEvent) {
+    e.preventDefault();
     const trimmed = newName.trim();
-    if (trimmed) onCreate(trimmed);
+    if (trimmed && newFactionId) onCreate(trimmed, newFactionId);
     setNewName("");
     setAdding(false);
   }
@@ -85,21 +89,48 @@ export function ArmyTabs({
       )}
 
       {adding ? (
-        <input
-          autoFocus
-          value={newName}
-          onChange={(e) => setNewName(e.target.value)}
-          onBlur={submitAdd}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") submitAdd();
-            if (e.key === "Escape") {
+        <form onSubmit={submitAdd} className="flex items-center gap-1.5">
+          <input
+            autoFocus
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setNewName("");
+                setAdding(false);
+              }
+            }}
+            placeholder="Army name..."
+            className="rounded-full border border-black/[.08] px-3 py-1 text-sm dark:border-white/[.145]"
+          />
+          <select
+            value={newFactionId}
+            onChange={(e) => setNewFactionId(e.target.value)}
+            className="rounded-full border border-black/[.08] bg-transparent px-3 py-1 text-sm dark:border-white/[.145]"
+          >
+            {factions.map((f) => (
+              <option key={f.id} value={f.id} className="text-black dark:text-black">
+                {f.name}
+              </option>
+            ))}
+          </select>
+          <button
+            type="submit"
+            className="rounded-full bg-foreground px-3 py-1 text-sm text-background hover:bg-[#383838] dark:hover:bg-[#ccc]"
+          >
+            Add
+          </button>
+          <button
+            type="button"
+            onClick={() => {
               setNewName("");
               setAdding(false);
-            }
-          }}
-          placeholder="Army name..."
-          className="rounded-full border border-black/[.08] px-3 py-1 text-sm dark:border-white/[.145]"
-        />
+            }}
+            className="rounded-full px-2 py-1 text-sm text-zinc-500 hover:bg-black/[.04] dark:text-zinc-400 dark:hover:bg-white/[.08]"
+          >
+            Cancel
+          </button>
+        </form>
       ) : (
         <button
           onClick={() => setAdding(true)}

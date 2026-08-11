@@ -1,5 +1,24 @@
 import { supabase } from "./supabase";
-import type { Army, Status, Unit } from "./types";
+import type { Army, CatalogUnit, Faction, Status, Unit } from "./types";
+
+export async function getFactions(): Promise<Faction[]> {
+  const { data, error } = await supabase
+    .from("factions")
+    .select("*")
+    .order("name", { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
+export async function getCatalogUnits(factionId: string): Promise<CatalogUnit[]> {
+  const { data, error } = await supabase
+    .from("unit_catalog")
+    .select("*")
+    .eq("faction_id", factionId)
+    .order("name", { ascending: true });
+  if (error) throw error;
+  return data;
+}
 
 export async function getArmies(): Promise<Army[]> {
   const { data, error } = await supabase
@@ -10,10 +29,10 @@ export async function getArmies(): Promise<Army[]> {
   return data;
 }
 
-export async function createArmy(name: string): Promise<Army> {
+export async function createArmy(name: string, factionId: string): Promise<Army> {
   const { data, error } = await supabase
     .from("armies")
-    .insert({ name })
+    .insert({ name, faction_id: factionId })
     .select()
     .single();
   if (error) throw error;
@@ -42,12 +61,19 @@ export async function getUnits(armyId: string): Promise<Unit[]> {
 
 export async function createUnit(
   armyId: string,
-  name: string,
-  status: Status = "on_sprue"
+  status: Status,
+  catalogUnit: CatalogUnit
 ): Promise<Unit> {
   const { data, error } = await supabase
     .from("units")
-    .insert({ army_id: armyId, name, status, position: Date.now() })
+    .insert({
+      army_id: armyId,
+      name: `${catalogUnit.name} (${catalogUnit.variant})`,
+      status,
+      position: Date.now(),
+      points: catalogUnit.points,
+      catalog_unit_id: catalogUnit.id,
+    })
     .select()
     .single();
   if (error) throw error;

@@ -11,13 +11,21 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { STATUS_COLUMNS, type Status, type Unit } from "@/lib/types";
-import { createUnit, deleteUnit, getUnits, moveUnit, updateUnit } from "@/lib/db";
+import { STATUS_COLUMNS, type CatalogUnit, type Status, type Unit } from "@/lib/types";
+import {
+  createUnit,
+  deleteUnit,
+  getCatalogUnits,
+  getUnits,
+  moveUnit,
+  updateUnit,
+} from "@/lib/db";
 import { Column } from "./Column";
 import { UnitCard } from "./UnitCard";
 
 type Props = {
   armyId: string;
+  factionId: string;
 };
 
 function groupByStatus(units: Unit[]) {
@@ -28,8 +36,9 @@ function groupByStatus(units: Unit[]) {
   return groups;
 }
 
-export function Board({ armyId }: Props) {
+export function Board({ armyId, factionId }: Props) {
   const [units, setUnits] = useState<Unit[]>([]);
+  const [catalog, setCatalog] = useState<CatalogUnit[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -39,22 +48,26 @@ export function Board({ armyId }: Props) {
 
   useEffect(() => {
     let cancelled = false;
-    getUnits(armyId).then((data) => {
-      if (!cancelled) {
-        setUnits(data);
-        setLoading(false);
+    Promise.all([getUnits(armyId), getCatalogUnits(factionId)]).then(
+      ([unitsData, catalogData]) => {
+        if (!cancelled) {
+          setUnits(unitsData);
+          setCatalog(catalogData);
+          setLoading(false);
+        }
       }
-    });
+    );
     return () => {
       cancelled = true;
     };
-  }, [armyId]);
+  }, [armyId, factionId]);
 
   const grouped = useMemo(() => groupByStatus(units), [units]);
   const activeUnit = units.find((u) => u.id === activeId) ?? null;
+  const totalPoints = units.reduce((sum, u) => sum + (u.points ?? 0), 0);
 
-  async function handleAddUnit(status: Status, name: string) {
-    const created = await createUnit(armyId, name, status);
+  async function handleAddUnit(status: Status, catalogUnit: CatalogUnit) {
+    const created = await createUnit(armyId, status, catalogUnit);
     setUnits((prev) => [...prev, created]);
   }
 
@@ -143,6 +156,11 @@ export function Board({ armyId }: Props) {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
+      <div className="flex items-center justify-between px-4 pt-3">
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          Total: <span className="font-semibold text-foreground">{totalPoints} pts</span>
+        </p>
+      </div>
       <div className="flex flex-1 gap-3 overflow-x-auto p-4">
         {STATUS_COLUMNS.map((col) => (
           <Column
@@ -150,7 +168,8 @@ export function Board({ armyId }: Props) {
             status={col.id}
             label={col.label}
             units={grouped.get(col.id) ?? []}
-            onAddUnit={(name) => handleAddUnit(col.id, name)}
+            catalog={catalog}
+            onAddUnit={(catalogUnit) => handleAddUnit(col.id, catalogUnit)}
             onSaveUnit={handleSaveUnit}
             onDeleteUnit={handleDeleteUnit}
           />

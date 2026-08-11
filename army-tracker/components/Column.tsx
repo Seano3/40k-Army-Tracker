@@ -2,14 +2,15 @@
 
 import { useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
-import type { Status, Unit } from "@/lib/types";
+import type { CatalogUnit, Status, Unit } from "@/lib/types";
 import { UnitCard } from "./UnitCard";
 
 type Props = {
   status: Status;
   label: string;
   units: Unit[];
-  onAddUnit: (name: string) => void;
+  catalog: CatalogUnit[];
+  onAddUnit: (catalogUnit: CatalogUnit) => void;
   onSaveUnit: (id: string, fields: { name: string; notes: string | null }) => void;
   onDeleteUnit: (id: string) => void;
 };
@@ -18,23 +19,19 @@ export function Column({
   status,
   label,
   units,
+  catalog,
   onAddUnit,
   onSaveUnit,
   onDeleteUnit,
 }: Props) {
   const [adding, setAdding] = useState(false);
-  const [newName, setNewName] = useState("");
   const { setNodeRef, isOver } = useDroppable({ id: `column:${status}` });
+  const columnPoints = units.reduce((sum, u) => sum + (u.points ?? 0), 0);
 
-  function submitAdd() {
-    const trimmed = newName.trim();
-    if (!trimmed) {
-      setAdding(false);
-      return;
-    }
-    onAddUnit(trimmed);
-    setNewName("");
+  function handlePick(catalogUnitId: string) {
+    const catalogUnit = catalog.find((c) => c.id === catalogUnitId);
     setAdding(false);
+    if (catalogUnit) onAddUnit(catalogUnit);
   }
 
   return (
@@ -43,7 +40,9 @@ export function Column({
         <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
           {label}
         </h2>
-        <span className="text-xs text-zinc-400">{units.length}</span>
+        <span className="text-xs text-zinc-400">
+          {units.length} · {columnPoints} pts
+        </span>
       </div>
       <div
         ref={setNodeRef}
@@ -62,21 +61,22 @@ export function Column({
       </div>
       <div className="p-2 pt-0">
         {adding ? (
-          <input
+          <select
             autoFocus
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            onBlur={submitAdd}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") submitAdd();
-              if (e.key === "Escape") {
-                setNewName("");
-                setAdding(false);
-              }
-            }}
-            placeholder="Unit name..."
+            defaultValue=""
+            onChange={(e) => handlePick(e.target.value)}
+            onBlur={() => setAdding(false)}
             className="w-full rounded-md border border-black/[.08] bg-white px-2 py-1.5 text-sm dark:border-white/[.145] dark:bg-zinc-900"
-          />
+          >
+            <option value="" disabled>
+              Select a unit...
+            </option>
+            {catalog.map((c) => (
+              <option key={c.id} value={c.id} className="text-black dark:text-black">
+                {c.name} — {c.variant} — {c.points} pts
+              </option>
+            ))}
+          </select>
         ) : (
           <button
             onClick={() => setAdding(true)}
