@@ -73,7 +73,7 @@ export function Column({
             </option>
             {catalog.map((c) => (
               <option key={c.id} value={c.id} className="text-black dark:text-black">
-                {c.name} — {c.variant} — {c.points} pts
+                {c.name} — {c.points} pts
               </option>
             ))}
           </select>

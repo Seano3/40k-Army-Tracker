@@ -68,7 +68,7 @@ export async function createUnit(
     .from("units")
     .insert({
       army_id: armyId,
-      name: `${catalogUnit.name} (${catalogUnit.variant})`,
+      name: catalogUnit.name,
       status,
       position: Date.now(),
       points: catalogUnit.points,
