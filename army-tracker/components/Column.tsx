@@ -35,9 +35,9 @@ export function Column({
   }
 
   return (
-    <div className="flex w-64 shrink-0 flex-col rounded-xl bg-zinc-100 dark:bg-zinc-950/50">
+    <div className="flex w-64 shrink-0 flex-col rounded-xl bg-zinc-100">
       <div className="flex items-center justify-between px-3 pt-3 pb-2">
-        <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+        <h2 className="text-sm font-semibold text-zinc-700">
           {label}
         </h2>
         <span className="text-xs text-zinc-400">
@@ -47,7 +47,7 @@ export function Column({
       <div
         ref={setNodeRef}
         className={`flex min-h-[80px] flex-1 flex-col gap-2 px-2 pb-2 ${
-          isOver ? "bg-black/[.04] dark:bg-white/[.06]" : ""
+          isOver ? "bg-black/[.04]" : ""
         }`}
       >
         {units.map((unit) => (
@@ -66,13 +66,13 @@ export function Column({
             defaultValue=""
             onChange={(e) => handlePick(e.target.value)}
             onBlur={() => setAdding(false)}
-            className="w-full rounded-md border border-black/[.08] bg-white px-2 py-1.5 text-sm dark:border-white/[.145] dark:bg-zinc-900"
+            className="w-full rounded-md border border-black/[.08] bg-white px-2 py-1.5 text-sm"
           >
             <option value="" disabled>
               Select a unit...
             </option>
             {catalog.map((c) => (
-              <option key={c.id} value={c.id} className="text-black dark:text-black">
+              <option key={c.id} value={c.id} className="text-black">
                 {c.name} — {c.points} pts
               </option>
             ))}
@@ -80,7 +80,7 @@ export function Column({
         ) : (
           <button
             onClick={() => setAdding(true)}
-            className="w-full rounded-md px-2 py-1.5 text-left text-sm text-zinc-500 hover:bg-black/[.04] dark:text-zinc-400 dark:hover:bg-white/[.08]"
+            className="w-full rounded-md px-2 py-1.5 text-left text-sm text-zinc-500 hover:bg-black/[.04]"
           >
             + Add unit
           </button>

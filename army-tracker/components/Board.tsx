@@ -157,7 +157,7 @@ export function Board({ armyId, factionId }: Props) {
       onDragEnd={handleDragEnd}
     >
       <div className="flex items-center justify-between px-4 pt-3">
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="text-sm text-zinc-500">
           Total: <span className="font-semibold text-foreground">{totalPoints} pts</span>
         </p>
       </div>

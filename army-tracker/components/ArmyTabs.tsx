@@ -43,7 +43,7 @@ export function ArmyTabs({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 border-b border-black/[.08] px-4 py-3 dark:border-white/[.145]">
+    <div className="flex flex-wrap items-center gap-2 border-b border-black/[.08] px-4 py-3">
       {armies.map((army) =>
         renamingId === army.id ? (
           <input
@@ -56,7 +56,7 @@ export function ArmyTabs({
               if (e.key === "Enter") submitRename();
               if (e.key === "Escape") setRenamingId(null);
             }}
-            className="rounded-full border border-black/[.08] px-3 py-1 text-sm dark:border-white/[.145]"
+            className="rounded-full border border-black/[.08] px-3 py-1 text-sm"
           />
         ) : (
           <button
@@ -69,7 +69,7 @@ export function ArmyTabs({
             className={`group flex items-center gap-1.5 rounded-full px-3 py-1 text-sm ${
               selectedId === army.id
                 ? "bg-foreground text-background"
-                : "bg-black/[.04] text-zinc-700 hover:bg-black/[.08] dark:bg-white/[.08] dark:text-zinc-300 dark:hover:bg-white/[.12]"
+                : "bg-black/[.04] text-zinc-700 hover:bg-black/[.08]"
             }`}
           >
             {army.name}
@@ -101,22 +101,22 @@ export function ArmyTabs({
               }
             }}
             placeholder="Army name..."
-            className="rounded-full border border-black/[.08] px-3 py-1 text-sm dark:border-white/[.145]"
+            className="rounded-full border border-black/[.08] px-3 py-1 text-sm"
           />
           <select
             value={newFactionId}
             onChange={(e) => setNewFactionId(e.target.value)}
-            className="rounded-full border border-black/[.08] bg-transparent px-3 py-1 text-sm dark:border-white/[.145]"
+            className="rounded-full border border-black/[.08] bg-transparent px-3 py-1 text-sm"
           >
             {factions.map((f) => (
-              <option key={f.id} value={f.id} className="text-black dark:text-black">
+              <option key={f.id} value={f.id} className="text-black">
                 {f.name}
               </option>
             ))}
           </select>
           <button
             type="submit"
-            className="rounded-full bg-foreground px-3 py-1 text-sm text-background hover:bg-[#383838] dark:hover:bg-[#ccc]"
+            className="rounded-full bg-foreground px-3 py-1 text-sm text-background hover:bg-[#383838]"
           >
             Add
           </button>
@@ -126,7 +126,7 @@ export function ArmyTabs({
               setNewName("");
               setAdding(false);
             }}
-            className="rounded-full px-2 py-1 text-sm text-zinc-500 hover:bg-black/[.04] dark:text-zinc-400 dark:hover:bg-white/[.08]"
+            className="rounded-full px-2 py-1 text-sm text-zinc-500 hover:bg-black/[.04]"
           >
             Cancel
           </button>
@@ -134,7 +134,7 @@ export function ArmyTabs({
       ) : (
         <button
           onClick={() => setAdding(true)}
-          className="rounded-full border border-dashed border-black/[.15] px-3 py-1 text-sm text-zinc-500 hover:bg-black/[.04] dark:border-white/[.2] dark:text-zinc-400 dark:hover:bg-white/[.08]"
+          className="rounded-full border border-dashed border-black/[.15] px-3 py-1 text-sm text-zinc-500 hover:bg-black/[.04]"
         >
           + New Army
         </button>
